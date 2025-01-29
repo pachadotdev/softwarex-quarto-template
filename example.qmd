@@ -1,0 +1,75 @@
+---
+title: "example: Just a simple example"
+date: "2024-12-07"
+abstract: |
+  This template is a simple example of a manuscript for SoftwareX. It allows
+  a 2nd author by adding "author2" and "affiliation2". Modifications can be made
+  to add more authors if needed.
+author1: "Mauricio Vargas Sepulveda"
+affiliation1: "University of Toronto, Munk School of Global Affairs and Public Policy and Department of Political Science"
+email1: "m.sepulveda@mail.utoronto.ca"
+keywords: "R, Quarto, template"
+format:
+  pdf:
+    template: template.tex
+    keep-tex: true
+bibliography: references.bib
+csl: softwarex.csl
+version: 0.1
+repo: pachadotdev/softwarex-quarto-template
+codelicense: "Apache License 2.0."
+versioning: git
+software: R, Quarto.
+compilation: C++11 and R 4.0.0 at least.
+documentation: https://github.com/pachadotdev/softwarex-quarto-template/issues
+---
+
+# R's popularity
+
+There are multiple ways to measure a language popularity, and one of them is the
+number of R questions in Stack Overflow, which has been increasing over the
+years as shown in the following plot [@stackoverflow2024].
+
+```{r stackoverflow, eval = TRUE, echo = FALSE, message = FALSE, warning = FALSE, fig.width = 5, fig.height = 3, fig.cap = "R Questions in Stack Overflow increase from 2,260 in 2010 to 28,385 in 2023 with a peak of 59,895 in 2020.", fig.pos = "H"}
+library(readr)
+library(janitor)
+library(dplyr)
+library(ggplot2)
+library(patchwork)
+
+stackoverflow <- read_csv("data/stackoverflow.csv") %>%
+  clean_names() %>%
+  rename(same_yr_pct = r_percentage) %>%
+  mutate(
+    prev_yr_pct = r_questions / lag(r_questions) * 100,
+  ) %>%
+  filter(year > 2009, year < 2024)
+
+clrs <- c("#165976", "#d04e66")
+
+g1 <- ggplot(stackoverflow, aes(x = year, y = r_questions)) +
+  geom_line(color = clrs[1]) +
+  geom_point(color = clrs[1]) +
+  labs(
+    title = "R Questions in Stack Overflow",
+    x = "Year",
+    y = "Number of Questions (N)"
+  ) +
+  theme_minimal(base_size = 10)
+
+g2 <- ggplot(stackoverflow, aes(x = year, y = prev_yr_pct)) +
+  geom_line(color = clrs[2]) +
+  geom_point(color = clrs[2]) +
+  labs(
+    x = "Year",
+    y = "Year-over-Year Growth (%)",
+    caption = "Data Source: Adapted from Stack Overflow"
+  ) +
+  theme_minimal(base_size = 10)
+
+g1 + g2
+
+ggsave("stackoverflow.svg", width = 5, height = 3, dpi = 300)
+```
+
+# References
